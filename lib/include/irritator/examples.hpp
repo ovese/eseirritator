@@ -367,10 +367,10 @@ namespace irt {
         sum_b.default_input_coeffs[1] = 0.1;
 
         auto& constant_a = sim.alloc<constant>();
-        constant_a.default_X = -0.005;
+        constant_a.default_value = -0.005;
 
         auto& constant_b = sim.alloc<constant>();
-        constant_b.default_X = -0.135;
+        constant_b.default_value = -0.135;
 
 
         sim.connect(constant_a, 0, product_a, 0);
@@ -386,17 +386,18 @@ namespace irt {
         sim.connect(product, 0, sum_a, 1);
         sim.connect(product, 0, sum_b, 1);
 
-
-        f(sim.get_id(constant_a));
-        f(sim.get_id(constant_b));
-        f(sim.get_id(sum_a));
-        f(sim.get_id(sum_b));
-        f(sim.get_id(product_a));
-        f(sim.get_id(product_b));
+        
         f(sim.get_id(integrator_a));
         f(sim.get_id(integrator_b));
         f(sim.get_id(integrator_c));
         f(sim.get_id(integrator_d));
+        f(sim.get_id(product_a));
+        f(sim.get_id(product_b));
+        f(sim.get_id(sum_a));
+        f(sim.get_id(sum_b));
+        f(sim.get_id(constant_a));
+        f(sim.get_id(constant_b));
+        
 
         return status::success;
     }
@@ -469,34 +470,34 @@ namespace irt {
         sum_d.default_input_coeffs[1] = 1.5;
 
         auto& constant_a = sim.alloc<constant>();
-        constant_a.default_X = 0.005;
+        constant_a.default_value = 0.005;
 
         auto& constant_b = sim.alloc<constant>();
-        constant_b.default_X = -0.0057;
+        constant_b.default_value = -0.0057;
 
         auto& constant_c = sim.alloc<constant>();
-        constant_c.default_X = -0.005;
+        constant_c.default_value = -0.005;
 
         auto& constant_d = sim.alloc<constant>();
-        constant_d.default_X = 0.0057;
+        constant_d.default_value = 0.0057;
 
         auto& constant_e = sim.alloc<constant>();
-        constant_e.default_X = -0.135;
+        constant_e.default_value = -0.135;
 
         auto& constant_f = sim.alloc<constant>();
-        constant_f.default_X = 0.135;
+        constant_f.default_value = 0.135;
 
         auto& constant_g = sim.alloc<constant>();
-        constant_g.default_X = -0.072;
+        constant_g.default_value = -0.072;
 
         auto& constant_h = sim.alloc<constant>();
-        constant_h.default_X = 0.005;
+        constant_h.default_value = 0.005;
 
         auto& constant_i = sim.alloc<constant>();
-        constant_i.default_X = 0.067;
+        constant_i.default_value = 0.067;
 
         auto& constant_j = sim.alloc<constant>();
-        constant_j.default_X = -0.005;
+        constant_j.default_value = -0.005;
 
 
         sim.connect(constant_a, 0, sum_a, 0);
@@ -532,7 +533,23 @@ namespace irt {
         sim.connect(integrator_a, 0, product_i, 0);
         sim.connect(integrator_c, 0, product_i, 1);
 
-
+        f(sim.get_id(integrator_a));
+        f(sim.get_id(integrator_b));
+        f(sim.get_id(integrator_c));
+        f(sim.get_id(integrator_d));
+        f(sim.get_id(product_a));
+        f(sim.get_id(product_b));
+        f(sim.get_id(product_c));
+        f(sim.get_id(product_d));
+        f(sim.get_id(product_e));
+        f(sim.get_id(product_f));
+        f(sim.get_id(product_g));
+        f(sim.get_id(product_h));
+        f(sim.get_id(product_i));
+        f(sim.get_id(sum_a));
+        f(sim.get_id(sum_b));
+        f(sim.get_id(sum_c));
+        f(sim.get_id(sum_d));
         f(sim.get_id(constant_a));
         f(sim.get_id(constant_b));
         f(sim.get_id(constant_c));
@@ -543,23 +560,7 @@ namespace irt {
         f(sim.get_id(constant_h));
         f(sim.get_id(constant_i));
         f(sim.get_id(constant_j));
-        f(sim.get_id(sum_a));
-        f(sim.get_id(sum_b));
-        f(sim.get_id(sum_c));
-        f(sim.get_id(sum_d));
-        f(sim.get_id(product_a));
-        f(sim.get_id(product_b));
-        f(sim.get_id(product_c));
-        f(sim.get_id(product_d));
-        f(sim.get_id(product_e));
-        f(sim.get_id(product_f));
-        f(sim.get_id(product_g));
-        f(sim.get_id(product_h));
-        f(sim.get_id(product_i));
-        f(sim.get_id(integrator_a));
-        f(sim.get_id(integrator_b));
-        f(sim.get_id(integrator_c));
-        f(sim.get_id(integrator_d));
+        
 
         return status::success;
     }
