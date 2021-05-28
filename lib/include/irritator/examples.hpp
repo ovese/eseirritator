@@ -330,13 +330,25 @@ namespace irt {
     {
         static_assert(1 <= QssLevel && QssLevel <= 3, "Only for Qss1, 2 and 3");
 
-        bool success = sim.can_alloc<constant>(2) &&
-            sim.can_alloc<abstract_wsum<QssLevel, 2>>(2) &&            
+        bool success = sim.can_alloc<abstract_wsum<QssLevel, 2>>(2) &&                                    
             sim.can_alloc<abstract_multiplier<QssLevel>>(2) &&
             sim.can_alloc<abstract_integrator<QssLevel>>(4) &&
+            sim.can_alloc<constant>(2) &&
             sim.can_connect(12);//pour le seir_linear qu'est-ce que le nombre de connection 12,
 
         irt_return_if_fail(success, status::simulation_not_enough_model);
+
+        auto& sum_a = sim.alloc<abstract_wsum<QssLevel, 2>>();
+        sum_a.default_input_coeffs[0] = -0.005;
+        sum_a.default_input_coeffs[1] = -0.4;
+
+        auto& sum_b = sim.alloc<abstract_wsum<QssLevel, 2>>();
+        sum_b.default_input_coeffs[0] = -0.135;
+        sum_b.default_input_coeffs[1] = 0.1;
+
+        auto& product_a = sim.alloc<abstract_multiplier<QssLevel>>();
+
+        auto& product_b = sim.alloc<abstract_multiplier<QssLevel>>();
 
         auto& integrator_a = sim.alloc<abstract_integrator<QssLevel>>();
         integrator_a.default_X = 10.0;
@@ -353,18 +365,6 @@ namespace irt {
         auto& integrator_d = sim.alloc<abstract_integrator<QssLevel>>();
         integrator_d.default_X = 10.0;
         integrator_d.default_dQ = 0.01;
-
-        auto& product_a = sim.alloc<abstract_multiplier<QssLevel>>();
-
-        auto& product_b = sim.alloc<abstract_multiplier<QssLevel>>();
-
-        auto& sum_a = sim.alloc<abstract_wsum<QssLevel, 2>>();
-        sum_a.default_input_coeffs[0] = -0.005;
-        sum_a.default_input_coeffs[1] = -0.4;
-
-        auto& sum_b = sim.alloc<abstract_wsum<QssLevel, 2>>();
-        sum_b.default_input_coeffs[0] = -0.135;
-        sum_b.default_input_coeffs[1] = 0.1;
 
         auto& constant_a = sim.alloc<constant>();
         constant_a.default_value = -0.005;
@@ -383,8 +383,8 @@ namespace irt {
         sim.connect(integrator_d, 0, sum_b, 1);
         sim.connect(integrator_a, 0, product_a, 1);
         sim.connect(integrator_b, 0, product_b, 1);
-        sim.connect(product, 0, sum_a, 1);
-        sim.connect(product, 0, sum_b, 1);
+        sim.connect(product_a, 0, sum_a, 1);
+        sim.connect(product_b, 0, sum_b, 1);
 
         
         f(sim.get_id(integrator_a));
@@ -408,30 +408,32 @@ namespace irt {
     {
         static_assert(1 <= QssLevel && QssLevel <= 3, "Only for Qss1, 2 and 3");
 
-        bool success = sim.can_alloc<constant>(10) &&
-            sim.can_alloc<abstract_wsum<QssLevel, 2>>(2) &&
+        bool success = sim.can_alloc<abstract_wsum<QssLevel, 2>>(2) &&                        
             sim.can_alloc<abstract_wsum<QssLevel, 3>>(2) &&
             sim.can_alloc<abstract_multiplier<QssLevel>>(9) &&
             sim.can_alloc<abstract_integrator<QssLevel>>(4) &&
+            sim.can_alloc<constant>(10) &&
             sim.can_connect(32);//pour le seir_non_linear qu'est-ce que le nombre de connection 32?
 
         irt_return_if_fail(success, status::simulation_not_enough_model);
 
-        auto& integrator_a = sim.alloc<abstract_integrator<QssLevel>>();
-        integrator_a.default_X = 10.0;
-        integrator_a.default_dQ = 0.01;
+        auto& sum_a = sim.alloc<abstract_wsum<QssLevel, 3>>();
+        sum_a.default_input_coeffs[0] = 0.5;
+        sum_a.default_input_coeffs[1] = 1.0;
+        sum_a.default_input_coeffs[2] = 1.0;
 
-        auto& integrator_b = sim.alloc<abstract_integrator<QssLevel>>();
-        integrator_b.default_X = 10.0;
-        integrator_b.default_dQ = 0.01;
+        auto& sum_b = sim.alloc<abstract_wsum<QssLevel, 2>>();
+        sum_b.default_input_coeffs[0] = 1.0;
+        sum_b.default_input_coeffs[1] = 1.0;
 
-        auto& integrator_c = sim.alloc<abstract_integrator<QssLevel>>();
-        integrator_c.default_X = 10.0;
-        integrator_c.default_dQ = 0.01;
+        auto& sum_c = sim.alloc<abstract_wsum<QssLevel, 3>>();
+        sum_c.default_input_coeffs[0] = 1.5;
+        sum_c.default_input_coeffs[1] = 0.698;
+        sum_c.default_input_coeffs[2] = 0.387;
 
-        auto& integrator_d = sim.alloc<abstract_integrator<QssLevel>>();
-        integrator_d.default_X = 10.0;
-        integrator_d.default_dQ = 0.01;
+        auto& sum_d = sim.alloc<abstract_wsum<QssLevel, 2>>();
+        sum_d.default_input_coeffs[0] = 1.0;
+        sum_d.default_input_coeffs[1] = 1.5;
 
         auto& product_a = sim.alloc<abstract_multiplier<QssLevel>>();
 
@@ -451,23 +453,21 @@ namespace irt {
 
         auto& product_i = sim.alloc<abstract_multiplier<QssLevel>>();
 
-        auto& sum_a = sim.alloc<abstract_wsum<QssLevel, 3>>();
-        sum_a.default_input_coeffs[0] = 0.5;
-        sum_a.default_input_coeffs[1] = 1.0;
-        sum_a.default_input_coeffs[2] = 1.0;
+        auto& integrator_a = sim.alloc<abstract_integrator<QssLevel>>();
+        integrator_a.default_X = 10.0;
+        integrator_a.default_dQ = 0.01;
 
-        auto& sum_b = sim.alloc<abstract_wsum<QssLevel, 2>>();
-        sum_b.default_input_coeffs[0] = 1.0;
-        sum_b.default_input_coeffs[1] = 1.0;
+        auto& integrator_b = sim.alloc<abstract_integrator<QssLevel>>();
+        integrator_b.default_X = 10.0;
+        integrator_b.default_dQ = 0.01;
 
-        auto& sum_c = sim.alloc<abstract_wsum<QssLevel, 3>>();
-        sum_c.default_input_coeffs[0] = 1.5;
-        sum_c.default_input_coeffs[1] = 0.698;
-        sum_c.default_input_coeffs[2] = 0.387;
+        auto& integrator_c = sim.alloc<abstract_integrator<QssLevel>>();
+        integrator_c.default_X = 10.0;
+        integrator_c.default_dQ = 0.01;
 
-        auto& sum_d = sim.alloc<abstract_wsum<QssLevel, 2>>();
-        sum_d.default_input_coeffs[0] = 1.0;
-        sum_d.default_input_coeffs[1] = 1.5;
+        auto& integrator_d = sim.alloc<abstract_integrator<QssLevel>>();
+        integrator_d.default_X = 10.0;
+        integrator_d.default_dQ = 0.01;
 
         auto& constant_a = sim.alloc<constant>();
         constant_a.default_value = 0.005;
