@@ -330,8 +330,8 @@ namespace irt {
     {
         static_assert(1 <= QssLevel && QssLevel <= 3, "Only for Qss1, 2 and 3");
 
-        bool success = sim.can_alloc<abstract_constant<QssLevel>>(2) &&
-            sim.can_alloc<abstract_wsum<QssLevel, 2>>(2) &&
+        bool success = sim.can_alloc<constant>(2) &&
+            sim.can_alloc<abstract_wsum<QssLevel, 2>>(2) &&            
             sim.can_alloc<abstract_multiplier<QssLevel>>(2) &&
             sim.can_alloc<abstract_integrator<QssLevel>>(4) &&
             sim.can_connect(12);//pour le seir_linear qu'est-ce que le nombre de connection 12,
@@ -366,10 +366,10 @@ namespace irt {
         sum_b.default_input_coeffs[0] = -0.135;
         sum_b.default_input_coeffs[1] = 0.1;
 
-        auto& constant_a = sim.alloc<abstract_constant<QssLevel>>();
+        auto& constant_a = sim.alloc<constant>();
         constant_a.default_X = -0.005;
 
-        auto& constant_b = sim.alloc<abstract_constant<QssLevel>>();
+        auto& constant_b = sim.alloc<constant>();
         constant_b.default_X = -0.135;
 
 
@@ -407,7 +407,7 @@ namespace irt {
     {
         static_assert(1 <= QssLevel && QssLevel <= 3, "Only for Qss1, 2 and 3");
 
-        bool success = sim.can_alloc<abstract_constant<QssLevel>>(10) &&
+        bool success = sim.can_alloc<constant>(10) &&
             sim.can_alloc<abstract_wsum<QssLevel, 2>>(2) &&
             sim.can_alloc<abstract_wsum<QssLevel, 3>>(2) &&
             sim.can_alloc<abstract_multiplier<QssLevel>>(9) &&
@@ -468,34 +468,34 @@ namespace irt {
         sum_d.default_input_coeffs[0] = 1.0;
         sum_d.default_input_coeffs[1] = 1.5;
 
-        auto& constant_a = sim.alloc<abstract_constant<QssLevel>>();
+        auto& constant_a = sim.alloc<constant>();
         constant_a.default_X = 0.005;
 
-        auto& constant_b = sim.alloc<abstract_constant<QssLevel>>();
+        auto& constant_b = sim.alloc<constant>();
         constant_b.default_X = -0.0057;
 
-        auto& constant_c = sim.alloc<abstract_constant<QssLevel>>();
+        auto& constant_c = sim.alloc<constant>();
         constant_c.default_X = -0.005;
 
-        auto& constant_d = sim.alloc<abstract_constant<QssLevel>>();
+        auto& constant_d = sim.alloc<constant>();
         constant_d.default_X = 0.0057;
 
-        auto& constant_e = sim.alloc<abstract_constant<QssLevel>>();
+        auto& constant_e = sim.alloc<constant>();
         constant_e.default_X = -0.135;
 
-        auto& constant_f = sim.alloc<abstract_constant<QssLevel>>();
+        auto& constant_f = sim.alloc<constant>();
         constant_f.default_X = 0.135;
 
-        auto& constant_g = sim.alloc<abstract_constant<QssLevel>>();
+        auto& constant_g = sim.alloc<constant>();
         constant_g.default_X = -0.072;
 
-        auto& constant_h = sim.alloc<abstract_constant<QssLevel>>();
+        auto& constant_h = sim.alloc<constant>();
         constant_h.default_X = 0.005;
 
-        auto& constant_i = sim.alloc<abstract_constant<QssLevel>>();
+        auto& constant_i = sim.alloc<constant>();
         constant_i.default_X = 0.067;
 
-        auto& constant_j = sim.alloc<abstract_constant<QssLevel>>();
+        auto& constant_j = sim.alloc<constant>();
         constant_j.default_X = -0.005;
 
 
