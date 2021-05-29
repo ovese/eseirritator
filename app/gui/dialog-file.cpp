@@ -23,11 +23,11 @@
 #include <pwd.h>
 #include <unistd.h>
 #elif defined(__APPLE__)
-#include <sys/param.h>
-#include <sys/mount.h>
 #include <errno.h>
 #include <mach-o/dyld.h>
 #include <pwd.h>
+#include <sys/mount.h>
+#include <sys/param.h>
 #include <unistd.h>
 #elif defined(_WIN32)
 #include <KnownFolders.h>
@@ -51,10 +51,10 @@ get_home_directory()
 
     std::vector<char> buf(size, '\0');
     struct passwd pwd;
-    struct passwd* result;
+    struct passwd* result = nullptr;
 
     const auto s = getpwuid_r(getpid(), &pwd, buf.data(), size, &result);
-    if (!result)
+    if (s || !result)
         return std::nullopt;
 
     return std::filesystem::path{ std::string_view{ buf.data() } };
@@ -83,10 +83,12 @@ std::optional<std::filesystem::path>
 get_executable_directory()
 {
     std::vector<char> buf(PATH_MAX, '\0');
-    const auto size = readlink("/proc/self/exe", buf.data(), PATH_MAX);
+    const auto ssize = readlink("/proc/self/exe", buf.data(), PATH_MAX);
 
-    if (size <= 0)
+    if (ssize <= 0)
         return std::nullopt;
+
+    const auto size = static_cast<size_t>(ssize);
 
     return std::filesystem::path{ std::string_view{ buf.data(), size } };
 }
@@ -368,8 +370,11 @@ struct file_dialog
 
 file_dialog fd;
 
+// static const char8_t* filters[] = { u8".irt", nullptr };
 bool
-load_file_dialog(std::filesystem::path& out)
+load_file_dialog(std::filesystem::path& out,
+                 const char* title,
+                 const char8_t** filters)
 {
     if (fd.current.empty()) {
         fd.fill_drives();
@@ -381,7 +386,7 @@ load_file_dialog(std::filesystem::path& out)
     std::filesystem::path next;
     bool res = false;
 
-    if (ImGui::BeginPopupModal("Select file path to load")) {
+    if (ImGui::BeginPopupModal(title)) {
         bool path_click = false;
 
         fd.show_drives(&path_click, &next);
@@ -442,7 +447,6 @@ load_file_dialog(std::filesystem::path& out)
 
         if (path_click) {
             fd.paths.clear();
-            static const char8_t* filters[] = { u8".irt", nullptr };
             fd.extension_filters = filters;
             fd.file_filters = nullptr;
 
@@ -484,8 +488,11 @@ load_file_dialog(std::filesystem::path& out)
     return res;
 }
 
+// static const char8_t* filters[] = { u8".irt", nullptr };
 bool
-save_file_dialog(std::filesystem::path& out)
+save_file_dialog(std::filesystem::path& out,
+                 const char* title,
+                 const char8_t** filters)
 {
     if (fd.current.empty()) {
         fd.fill_drives();
@@ -504,7 +511,7 @@ save_file_dialog(std::filesystem::path& out)
     std::filesystem::path next;
     bool res = false;
 
-    if (ImGui::BeginPopupModal("Select file path to save")) {
+    if (ImGui::BeginPopupModal(title)) {
         bool path_click = false;
 
         fd.show_drives(&path_click, &next);
@@ -573,7 +580,6 @@ save_file_dialog(std::filesystem::path& out)
 
         if (path_click) {
             fd.paths.clear();
-            static const char8_t* filters[] = { u8".irt", nullptr };
             fd.extension_filters = filters;
             fd.file_filters = nullptr;
 

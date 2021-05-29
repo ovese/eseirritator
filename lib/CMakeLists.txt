@@ -58,7 +58,7 @@ install(DIRECTORY include/irritator
   ${CMAKE_INSTALL_INCLUDEDIR}/irritator-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
 
 function(irritator_add_test test_name)
-  add_executable(${test_name} ${ARGN})
+  add_executable(${test_name} ${ARGN} "include/irritator/external_source.hpp")
 
   set_target_properties(${test_name} PROPERTIES
     COMPILE_DEFINITIONS EXAMPLES_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/test\"
@@ -127,12 +127,12 @@ endfunction()
 
 irritator_add_test(test-api test/public-api.cpp)
 irritator_add_test(simulations test/simulations.cpp)
-irritator_add_test(auditory test/auditory.cpp)
+# irritator_add_test(auditory test/auditory.cpp)
 
-irritator_add_benchmark(benchmark_exactitude_aqss benchmark/benchmark_exactitude_aqss.cpp)
-irritator_add_benchmark(benchmark_exactitude_qss1 benchmark/benchmark_exactitude_qss1.cpp)
-irritator_add_benchmark(benchmark_exactitude_qss2 benchmark/benchmark_exactitude_qss2.cpp)
+# irritator_add_benchmark(benchmark_exactitude_aqss benchmark/benchmark_exactitude_aqss.cpp)
+# irritator_add_benchmark(benchmark_exactitude_qss1 benchmark/benchmark_exactitude_qss1.cpp)
+# irritator_add_benchmark(benchmark_exactitude_qss2 benchmark/benchmark_exactitude_qss2.cpp)
 
-irritator_add_benchmark(benchmark_timing_qss1 benchmark/benchmark_timing_qss1.cpp)
-irritator_add_benchmark(benchmark_timing_qss2 benchmark/benchmark_timing_qss2.cpp)
-irritator_add_benchmark(benchmark_timing_aqss benchmark/benchmark_timing_aqss.cpp)
+# irritator_add_benchmark(benchmark_timing_qss1 benchmark/benchmark_timing_qss1.cpp)
+# irritator_add_benchmark(benchmark_timing_qss2 benchmark/benchmark_timing_qss2.cpp)
+# irritator_add_benchmark(benchmark_timing_aqss benchmark/benchmark_timing_aqss.cpp)

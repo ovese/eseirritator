@@ -6,9 +6,11 @@
 #define ORG_VLEPROJECT_IRRITATOR_APP_NODE_EDITOR_2020
 
 #include <irritator/core.hpp>
+#include <irritator/external_source.hpp>
 
 #include <filesystem>
 #include <fstream>
+#include <map>
 #include <thread>
 #include <variant>
 #include <vector>
@@ -49,12 +51,25 @@ status_string(const status s) noexcept
         "model_connect_input_port_unknown",
         "model_connect_already_exist",
         "model_connect_bad_dynamics",
+        "model_queue_bad_ta",
+        "model_queue_empty_allocator",
+        "model_queue_full",
+        "model_dynamic_queue_source_is_null",
+        "model_dynamic_queue_empty_allocator",
+        "model_dynamic_queue_full",
+        "model_priority_queue_source_is_null",
+        "model_priority_queue_empty_allocator",
+        "model_priority_queue_full",
         "model_integrator_dq_error",
         "model_integrator_X_error",
         "model_integrator_internal_error",
         "model_integrator_output_error",
         "model_integrator_running_without_x_dot",
         "model_integrator_ta_with_bad_x_dot",
+        "model_generator_null_ta_source",
+        "model_generator_empty_ta_source",
+        "model_generator_null_value_source",
+        "model_generator_empty_value_source",
         "model_quantifier_bad_quantum_parameter",
         "model_quantifier_bad_archive_length_parameter",
         "model_quantifier_shifting_value_neg",
@@ -76,33 +91,6 @@ status_string(const status s) noexcept
     static_assert(std::size(str) == status_size());
 
     return str[static_cast<int>(s)];
-}
-
-template<class C>
-constexpr int
-length(const C& c) noexcept
-{
-    return static_cast<int>(c.size());
-}
-
-template<class T, size_t N>
-constexpr int
-length(const T (&array)[N]) noexcept
-{
-    (void)array;
-
-    return static_cast<int>(N);
-}
-
-template<typename Identifier>
-constexpr Identifier
-undefined() noexcept
-{
-    static_assert(
-      std::is_enum<Identifier>::value,
-      "Identifier must be a enumeration: enum class id : unsigned {};");
-
-    return static_cast<Identifier>(0);
 }
 
 enum class editor_id : u64;
@@ -179,14 +167,75 @@ struct top_cluster
     }
 };
 
+inline int
+make_input_node_id(const irt::model_id mdl, const int port) noexcept
+{
+    irt_assert(port >= 0 && port < 8);
+
+    irt::u32 index = irt::get_index(mdl);
+    irt_assert(index < 268435456u);
+
+    irt::u32 port_index = static_cast<irt::u32>(port) << 28u;
+    index |= port_index;
+
+    return static_cast<int>(index);
+}
+
+inline int
+make_output_node_id(const irt::model_id mdl, const int port) noexcept
+{
+    irt_assert(port >= 0 && port < 8);
+
+    irt::u32 index = irt::get_index(mdl);
+    irt_assert(index < 268435456u);
+
+    irt::u32 port_index = static_cast<irt::u32>(8u + port) << 28u;
+
+    index |= port_index;
+
+    return static_cast<int>(index);
+}
+
+inline std::pair<irt::u32, irt::u32>
+get_model_input_port(const int node_id) noexcept
+{
+    const irt::u32 real_node_id = static_cast<irt::u32>(node_id);
+
+    irt::u32 port = real_node_id >> 28u;
+    irt_assert(port < 8u);
+
+    constexpr irt::u32 mask = ~(15u << 28u);
+    irt::u32 index = real_node_id & mask;
+
+    return std::make_pair(index, port);
+}
+
+inline std::pair<irt::u32, irt::u32>
+get_model_output_port(const int node_id) noexcept
+{
+    const irt::u32 real_node_id = static_cast<irt::u32>(node_id);
+
+    irt::u32 port = real_node_id >> 28u;
+
+    irt_assert(port >= 8u && port < 16u);
+    port -= 8u;
+    irt_assert(port < 8u);
+
+    constexpr irt::u32 mask = ~(15u << 28u);
+
+    irt::u32 index = real_node_id & mask;
+
+    return std::make_pair(index, port);
+}
+
 struct cluster
 {
     cluster() = default;
 
     small_string<16> name;
     std::vector<child_id> children;
-    std::vector<input_port_id> input_ports;
-    std::vector<output_port_id> output_ports;
+    std::vector<int> input_ports;
+    std::vector<int> output_ports;
 
     int get(const child_id id) const noexcept
     {
@@ -289,6 +338,23 @@ using observation_output = std::variant<std::monostate,
                                         file_output_id,
                                         file_discrete_output_id>;
 
+struct sources
+{
+    std::map<int, irt::source::constant> csts;
+    std::map<int, irt::source::binary_file> bins;
+    std::map<int, irt::source::text_file> texts;
+    int csts_next_id = 1;
+    int bins_next_id = 1;
+    int texts_next_id = 1;
+
+    irt::source::constant* new_constant() noexcept;
+    irt::source::binary_file* new_binary_file() noexcept;
+    irt::source::text_file* new_text_file() noexcept;
+
+    void show(bool* is_show);
+    void show_menu(const char* title, external_source& src);
+};
+
 struct editor
 {
     small_string<16> name;
@@ -352,9 +418,8 @@ struct editor
 
     void observation_outputs_free(const u32 index) noexcept
     {
-        observation_dispatch(index, [](auto& outs, auto out_id) {
-            outs.free(out_id);
-        });
+        observation_dispatch(
+          index, [](auto& outs, auto out_id) { outs.free(out_id); });
 
         observation_outputs[index] = std::monostate{};
     }
@@ -449,36 +514,33 @@ struct editor
         models_mapper[get_index(child)] = parent;
     }
 
-    static int get_in(input_port_id id) noexcept
+    struct gport
     {
-        return static_cast<int>(get_index(id));
+        gport() noexcept = default;
+
+        gport(irt::model* model_, const int port_index_) noexcept 
+        : model(model_)
+        , port_index(port_index_)
+        {}
+
+        irt::model* model = nullptr;
+        int port_index = 0;
+    };
+
+    gport get_in(const int index) noexcept
+    {
+        const auto model_index_port = get_model_input_port(index);
+        auto* mdl = sim.models.try_to_get(model_index_port.first);
+
+        return { mdl, static_cast<int>(model_index_port.second) };
     }
 
-    input_port_id get_in(int index) const noexcept
+    gport get_out(const int index) noexcept
     {
-        auto* port = sim.input_ports.try_to_get(static_cast<u32>(index));
+        const auto model_index_port = get_model_output_port(index);
+        auto* mdl = sim.models.try_to_get(model_index_port.first);
 
-        return port ? sim.input_ports.get_id(port) : undefined<input_port_id>();
-    }
-
-    static int get_out(output_port_id id) noexcept
-    {
-        constexpr u32 is_output = 1 << 31;
-        u32 index = get_index(id);
-        index |= is_output;
-
-        return static_cast<int>(index);
-    }
-
-    output_port_id get_out(int index) const noexcept
-    {
-        constexpr u32 mask = ~(1 << 31); /* remove the first bit */
-        index &= mask;
-
-        auto* port = sim.output_ports.try_to_get(static_cast<u32>(index));
-
-        return port ? sim.output_ports.get_id(port)
-                    : undefined<output_port_id>();
+        return { mdl, static_cast<int>(model_index_port.second) };
     }
 
     status add_lotka_volterra() noexcept;
@@ -510,11 +572,14 @@ struct application
         void show(bool* is_open);
     } settings;
 
+    sources srcs;
+
     bool show_log = true;
     bool show_simulation = true;
     bool show_demo = false;
     bool show_plot = true;
     bool show_settings = false;
+    bool show_sources = false;
 
     editor* alloc_editor();
     void free_editor(editor& ed);

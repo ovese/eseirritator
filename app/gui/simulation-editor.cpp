@@ -61,7 +61,7 @@ plot_output::operator()(const irt::observer& obs,
         return;
     }
 
-    while (!xs.empty() && xs.back() == tl)
+    while (!xs.empty() && static_cast<double>(xs.back()) == tl)
         pop_data(xs, ys);
 
     switch (type) {
@@ -184,7 +184,7 @@ file_discrete_output::operator()(const irt::observer& obs,
 void
 file_output::operator()(const irt::observer& obs,
                         const irt::dynamics_type type,
-                        const irt::time tl,
+                        const irt::time /*tl*/,
                         const irt::time t,
                         const irt::observer::status s)
 {
