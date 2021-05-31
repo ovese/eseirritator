@@ -324,6 +324,16 @@ namespace irt {
     /*
     * The linear and nonlinear SEIR model was added by Ese
     */
+	/** @brief Implements the Linear SEIR model for QSS1, QSS2 and QSS3.
+     *
+     * @details
+     *
+     * @Tparam QssLevel
+     * @Tparam F
+     * @param sim
+     * @param f
+     * @return
+     */
 
     template<int QssLevel, typename F>
     status
@@ -469,6 +479,8 @@ namespace irt {
         auto& integrator_d = sim.alloc<abstract_integrator<QssLevel>>();
         integrator_d.default_X = 10.0;
         integrator_d.default_dQ = 0.01;
+		
+		// The values used here are from Singh et al., 2017
 
         auto& constant_a = sim.alloc<constant>();
         constant_a.default_value = 0.005;
