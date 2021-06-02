@@ -366,7 +366,7 @@ namespace irt {
         integrator_a.default_dQ = 0.01;
 
         auto& integrator_b = sim.alloc<abstract_integrator<QssLevel>>();
-        integrator_b.default_X = 10.0;
+        integrator_b.default_X = 15.0;
         integrator_b.default_dQ = 0.01;
 
         auto& integrator_c = sim.alloc<abstract_integrator<QssLevel>>();
@@ -374,7 +374,7 @@ namespace irt {
         integrator_c.default_dQ = 0.01;
 
         auto& integrator_d = sim.alloc<abstract_integrator<QssLevel>>();
-        integrator_d.default_X = 10.0;
+        integrator_d.default_X = 18.0;
         integrator_d.default_dQ = 0.01;
 
         auto& constant_a = sim.alloc<constant>();
@@ -469,15 +469,15 @@ namespace irt {
         integrator_a.default_dQ = 0.01;
 
         auto& integrator_b = sim.alloc<abstract_integrator<QssLevel>>();
-        integrator_b.default_X = 10.0;
+        integrator_b.default_X = 12.0;
         integrator_b.default_dQ = 0.01;
 
         auto& integrator_c = sim.alloc<abstract_integrator<QssLevel>>();
-        integrator_c.default_X = 10.0;
+        integrator_c.default_X = 13.50;
         integrator_c.default_dQ = 0.01;
 
         auto& integrator_d = sim.alloc<abstract_integrator<QssLevel>>();
-        integrator_d.default_X = 10.0;
+        integrator_d.default_X = 15.0;
         integrator_d.default_dQ = 0.01;
 		
 		// The values used here are from Singh et al., 2017
